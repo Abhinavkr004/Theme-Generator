@@ -1,0 +1,163 @@
+@import "tailwindcss";
+
+/*
+  Palette Studio token system.
+
+  The runtime theme lives in --ps-* custom properties. The studio writes these
+  onto a root element at runtime (see themeToCssVars) and swaps light/dark by
+  toggling data-theme, so the whole app re-themes without re-rendering styled
+  nodes. The @theme block maps Tailwind color utilities onto those runtime vars,
+  which keeps opacity modifiers (bg-accent/15) working through color-mix.
+
+  Defaults below are a neutral "Tidal" light theme so the first paint is styled.
+*/
+
+:root {
+  --ps-background: #fafbfc;
+  --ps-surface: #ffffff;
+  --ps-surface-muted: #f1f4f7;
+  --ps-border: #dfe5ea;
+  --ps-text: #1a2026;
+  --ps-text-muted: #5c6670;
+  --ps-accent: #1f85d0;
+  --ps-accent-hover: #1a6fb0;
+  --ps-accent-text: #fafafa;
+  --ps-success: #2a9d6b;
+  --ps-warning: #d08a1f;
+  --ps-danger: #d64550;
+  --radius: 12px;
+}
+
+/* Expose the runtime tokens as Tailwind color utilities (bg-surface, text-accent, ...). */
+@theme inline {
+  --color-background: var(--ps-background);
+  --color-surface: var(--ps-surface);
+  --color-surface-muted: var(--ps-surface-muted);
+  --color-border: var(--ps-border);
+  --color-text: var(--ps-text);
+  --color-text-muted: var(--ps-text-muted);
+  --color-accent: var(--ps-accent);
+  --color-accent-hover: var(--ps-accent-hover);
+  --color-accent-text: var(--ps-accent-text);
+  --color-success: var(--ps-success);
+  --color-warning: var(--ps-warning);
+  --color-danger: var(--ps-danger);
+
+  --radius-theme: var(--radius);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/*
+  Site chrome theme (distinct from the generated preview theme above).
+
+  The landing page and the studio chrome wear these --site-* tokens. They flip
+  on [data-site-theme] set on <html> by the ThemeProvider (with a no-FOUC inline
+  script in the layout). This is the light/dark the *visitor* controls; the
+  --ps-* tokens remain the palette the user is *designing*.
+*/
+:root,
+[data-site-theme="dark"] {
+  --site-bg: #0b0f14;
+  --site-bg-elevated: #0e141b;
+  --site-surface: #141b23;
+  --site-line: rgba(255, 255, 255, 0.1);
+  --site-line-strong: rgba(255, 255, 255, 0.16);
+  --site-text: #f4f6f8;
+  --site-text-muted: #9aa5b1;
+  --site-text-faint: #6b7682;
+  --site-accent: #38a0e8;
+  --site-accent-hover: #5bb2ee;
+  --site-accent-contrast: #04121d;
+  --site-glow: rgba(56, 160, 232, 0.18);
+  color-scheme: dark;
+}
+
+[data-site-theme="light"] {
+  --site-bg: #f6f8fb;
+  --site-bg-elevated: #ffffff;
+  --site-surface: #ffffff;
+  --site-line: rgba(16, 24, 32, 0.1);
+  --site-line-strong: rgba(16, 24, 32, 0.16);
+  --site-text: #121920;
+  --site-text-muted: #566370;
+  --site-text-faint: #8a96a2;
+  --site-accent: #1877c9;
+  --site-accent-hover: #1668b0;
+  --site-accent-contrast: #ffffff;
+  --site-glow: rgba(24, 119, 201, 0.14);
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-site-bg: var(--site-bg);
+  --color-site-bg-elevated: var(--site-bg-elevated);
+  --color-site-surface: var(--site-surface);
+  --color-site-line: var(--site-line);
+  --color-site-line-strong: var(--site-line-strong);
+  --color-site-text: var(--site-text);
+  --color-site-text-muted: var(--site-text-muted);
+  --color-site-text-faint: var(--site-text-faint);
+  --color-site-accent: var(--site-accent);
+  --color-site-accent-hover: var(--site-accent-hover);
+  --color-site-accent-contrast: var(--site-accent-contrast);
+}
+
+/* Keep horizontal overflow from ever producing a stray scrollbar. */
+html,
+body {
+  overflow-x: hidden;
+}
+
+/* Hide the visual scrollbar everywhere while keeping scroll fully functional.
+   The studio and landing page scroll naturally; we just don't paint the bar. */
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* legacy Edge/IE */
+}
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none; /* Chrome, Safari, modern Edge */
+}
+
+body {
+  background: var(--site-bg);
+  color: var(--site-text);
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Smooth the moment the site theme flips, without fighting reduced-motion. */
+@media (prefers-reduced-motion: no-preference) {
+  body {
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease;
+  }
+}
+
+/* Smooth the moment a new theme is applied, but never fight the user's motion setting. */
+@media (prefers-reduced-motion: no-preference) {
+  .theme-root,
+  .theme-root * {
+    transition:
+      background-color 0.35s ease,
+      border-color 0.35s ease,
+      color 0.35s ease,
+      box-shadow 0.35s ease;
+  }
+}
+
+/* Keyboard focus is always visible and uses the live accent. */
+:focus-visible {
+  outline: 2px solid var(--ps-accent);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--ps-accent);
+  color: var(--ps-accent-text);
+}
